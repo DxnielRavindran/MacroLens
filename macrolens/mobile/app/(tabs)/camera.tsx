@@ -1,10 +1,11 @@
-import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 
 export default function CameraScreen() {
-    // Track the camera permission status
     const [permission, requestPermission] = useCameraPermissions();
+    const [photoUri, setPhotoUri] = useState<string | null>(null);
+    const cameraRef = useRef<CameraView>(null);
 
     // Handle loading state while checking permissions
     if (!permission) {
@@ -24,23 +25,31 @@ export default function CameraScreen() {
     }
 
 
+    async function takePicture() {
+        console.log('ref:', cameraRef.current);
+        const photo = await cameraRef.current?.takePictureAsync();
+        console.log('photo:', photo);
+        if (photo) {
+            setPhotoUri(photo.uri);
+        }
+    }
+
     return (
         <View style={styles.container}>
-            <CameraView style={styles.viewfinder} facing="back">
+            <CameraView style={styles.viewfinder} facing="back" ref={cameraRef}>
                 <View style={styles.overlayContainer}>
                     <View style={styles.targetBox} />
                 </View>
             </CameraView>
-            <TouchableOpacity style={styles.captureButton} onPress={requestPermission}>
-                <Text style={styles.buttonText}>Capture</Text>
-            </TouchableOpacity>
-
+            <TouchableOpacity style={styles.captureButton} onPress={takePicture} />
 
             <View style={styles.previewArea}>
-                <Text style={styles.previewText}>Photo preview will appear here</Text>
+                {photoUri ? (
+                    <Image source={{ uri: photoUri }} style={styles.previewImage} />
+                ) : (
+                    <Text style={styles.previewText}>Photo preview will appear here</Text>
+                )}
             </View>
-
-
         </View>
     );
 }
@@ -105,5 +114,9 @@ const styles = StyleSheet.create({
         color: '#666',
         fontSize: 14,
     },
-
+    previewImage: {
+        width: '100%',
+        height: '100%',
+        borderRadius: 12,
+    },
 });
