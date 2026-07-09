@@ -4,9 +4,11 @@ import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { StatusBar } from 'expo-status-bar';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  <StatusBar style="dark" />
 
   return (
     <Tabs
