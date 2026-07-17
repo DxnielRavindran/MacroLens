@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import MacroCard, { MOCK_ANALYSIS } from '@/components/MacroCard';
 
 export default function HomeScreen() {
   const [tapped, setTapped] = useState(false);
@@ -13,6 +14,7 @@ export default function HomeScreen() {
       <TouchableOpacity style={styles.button} onPress={() => { setTapped(!tapped); setCounter(counter + 1); }}>
         <Text style={styles.buttonText}>{tapped ? 'Tracking started!' : 'Track my macros'}</Text>
       </TouchableOpacity>
+      <MacroCard analysis={MOCK_ANALYSIS} />
     </View>
   );
 }
