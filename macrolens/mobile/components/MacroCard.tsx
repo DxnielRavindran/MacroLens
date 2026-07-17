@@ -1,66 +1,65 @@
+import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import type { ClaudeAnalysisResult } from '@/types';
+import { ClaudeAnalysisResult } from '@/types';
 
 type MacroCardProps = {
-    analysis: ClaudeAnalysisResult;
+    result: ClaudeAnalysisResult;
 };
 
-export default function MacroCard({ analysis }: MacroCardProps) {
-    const { totals, confidence } = analysis;
+const CONFIDENCE_COLORS: Record<ClaudeAnalysisResult['confidence'], string> = {
+    high: '#4CAF50',
+    medium: '#FF9800',
+    low: '#F44336',
+};
+
+export default function MacroCard({ result }: MacroCardProps) {
+    const { foods, totals, confidence } = result;
 
     return (
         <View style={styles.card}>
             <View style={styles.header}>
-                <Text style={styles.calories}>{totals.calories} cal</Text>
-                <Text style={[styles.confidence, confidenceStyle(confidence)]}>
-                    {confidence} confidence
-                </Text>
+                <Text style={styles.title}>Meal Summary</Text>
+                <View style={[styles.badge, { backgroundColor: CONFIDENCE_COLORS[confidence] }]}>
+                    <Text style={styles.badgeText}>{confidence}</Text>
+                </View>
             </View>
 
             <View style={styles.macroRow}>
-                <View style={styles.macroItem}>
-                    <Text style={styles.macroValue}>{totals.protein}g</Text>
-                    <Text style={styles.macroLabel}>Protein</Text>
-                </View>
-                <View style={styles.macroItem}>
-                    <Text style={styles.macroValue}>{totals.carbs}g</Text>
-                    <Text style={styles.macroLabel}>Carbs</Text>
-                </View>
-                <View style={styles.macroItem}>
-                    <Text style={styles.macroValue}>{totals.fat}g</Text>
-                    <Text style={styles.macroLabel}>Fat</Text>
-                </View>
+                <MacroStat label="Calories" value={totals.calories} unit="kcal" />
+                <MacroStat label="Protein" value={totals.protein} unit="g" />
+                <MacroStat label="Carbs" value={totals.carbs} unit="g" />
+                <MacroStat label="Fat" value={totals.fat} unit="g" />
+            </View>
+
+            <View style={styles.foodList}>
+                {foods.map((food) => (
+                    <View key={food.name} style={styles.foodRow}>
+                        <Text style={styles.foodName}>{food.name}</Text>
+                        <Text style={styles.foodGrams}>{food.estimated_grams}g</Text>
+                    </View>
+                ))}
             </View>
         </View>
     );
 }
 
-function confidenceStyle(confidence: ClaudeAnalysisResult['confidence']) {
-    if (confidence === 'high') return { color: '#2E7D32' };
-    if (confidence === 'medium') return { color: '#F9A825' };
-    return { color: '#C62828' };
+function MacroStat({ label, value, unit }: { label: string; value: number; unit: string }) {
+    return (
+        <View style={styles.stat}>
+            <Text style={styles.statValue}>{value}{unit === 'kcal' ? '' : unit}</Text>
+            <Text style={styles.statLabel}>{label}</Text>
+        </View>
+    );
 }
-
-// Hardcoded fake data for testing before the real Claude API call is wired up 
-export const MOCK_ANALYSIS: ClaudeAnalysisResult = {
-    foods: [
-        { name: 'Grilled chicken breast', estimated_grams: 150, calories: 248, protein: 46, carbs: 0, fat: 5 },
-        { name: 'White rice', estimated_grams: 200, calories: 260, protein: 5, carbs: 56, fat: 1 },
-        { name: 'Broccoli', estimated_grams: 90, calories: 31, protein: 3, carbs: 6, fat: 0 },
-    ],
-    totals: { calories: 539, protein: 54, carbs: 62, fat: 6 },
-    confidence: 'high',
-};
 
 const styles = StyleSheet.create({
     card: {
         backgroundColor: '#fff',
         borderRadius: 16,
-        padding: 20,
-        margin: 16,
+        padding: 16,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
+        shadowOpacity: 0.08,
         shadowRadius: 8,
         elevation: 3,
     },
@@ -70,12 +69,18 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 16,
     },
-    calories: {
-        fontSize: 28,
-        fontWeight: 'bold',
+    title: {
+        fontSize: 16,
+        fontWeight: '700',
         color: '#1a1a1a',
     },
-    confidence: {
+    badge: {
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 12,
+    },
+    badgeText: {
+        color: '#fff',
         fontSize: 12,
         fontWeight: '600',
         textTransform: 'capitalize',
@@ -83,19 +88,37 @@ const styles = StyleSheet.create({
     macroRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+        marginBottom: 16,
     },
-    macroItem: {
+    stat: {
         alignItems: 'center',
-        flex: 1,
     },
-    macroValue: {
+    statValue: {
         fontSize: 18,
-        fontWeight: '600',
+        fontWeight: '700',
         color: '#1a1a1a',
     },
-    macroLabel: {
-        fontSize: 13,
+    statLabel: {
+        fontSize: 12,
         color: '#888',
         marginTop: 2,
+    },
+    foodList: {
+        borderTopWidth: 1,
+        borderTopColor: '#eee',
+        paddingTop: 12,
+        gap: 8,
+    },
+    foodRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    foodName: {
+        fontSize: 14,
+        color: '#333',
+    },
+    foodGrams: {
+        fontSize: 14,
+        color: '#888',
     },
 });

@@ -1,54 +1,35 @@
-import { useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import MacroCard, { MOCK_ANALYSIS } from '@/components/MacroCard';
+import { StyleSheet, Text} from 'react-native';
+import ProgressBar from '@/components/ProgressBar';
+import { DailyGoals, MacroNutrients } from '@/types';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function HomeScreen() {
-  const [tapped, setTapped] = useState(false);
-  const [counter, setCounter] = useState(0);
+// Placeholder until Day 8+ wires this up to Supabase
+const todayTotals: MacroNutrients = { calories: 1450, protein: 88, carbs: 140, fat: 42 };
+const goals: DailyGoals = { calories: 2200, protein: 150, carbs: 250, fat: 70 };
 
+export default function DashboardScreen() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.emoji}>🍕</Text>
-      <Text style={styles.title}>Hello MacroLens</Text>
-      <Text style={styles.counter}>Meals logged: {counter}</Text>
-      <TouchableOpacity style={styles.button} onPress={() => { setTapped(!tapped); setCounter(counter + 1); }}>
-        <Text style={styles.buttonText}>{tapped ? 'Tracking started!' : 'Track my macros'}</Text>
-      </TouchableOpacity>
-      <MacroCard analysis={MOCK_ANALYSIS} />
-    </View>
+   <SafeAreaView style={styles.container}>
+      <Text style={styles.title}>Today's Progress</Text>
+      <ProgressBar label="Calories" current={todayTotals.calories} goal={goals.calories} unit=" kcal" color="#FF6B35" />
+      <ProgressBar label="Protein" current={todayTotals.protein} goal={goals.protein} unit="g" color="#0a7ea4" />
+      <ProgressBar label="Carbs" current={todayTotals.carbs} goal={goals.carbs} unit="g" color="#4CAF50" />
+      <ProgressBar label="Fat" current={todayTotals.fat} goal={goals.fat} unit="g" color="#9C27B0" />
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#fff',
-    gap: 12,
-  },
-  emoji: {
-    fontSize: 64,
+    justifyContent: 'flex-start',
+    backgroundColor: '#cbcda8',
+    padding: 24,
   },
   title: {
-    fontSize: 32,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#1a1a1a',
+    marginBottom: 20,
   },
-  button: {
-    marginTop: 16,
-    backgroundColor: '#FF6B35',
-    paddingVertical: 14,
-    paddingHorizontal: 32,
-    borderRadius: 12,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  counter: {
-    fontSize: 18,
-    color: '#888',
-  }
 });
